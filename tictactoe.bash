@@ -1,11 +1,26 @@
 #!/bin/bash
 # tui tictactoe
 
-# 3x3 board will be represented by a 9 element array
-squares=(- - - - - - - - -)
+while [[ -z $playerToken ]] || [[ $playerToken = [[:space:]] ]]; do
+  IFS="" read -r -n 1 -p "Choose your character: " playerToken
+done
 
-playerToken="X"
-compToken="O"
+if [[ $playerToken = "O" ]]; then
+  compToken="X"
+else
+  compToken="O"
+fi
+
+if [[ $playerToken = "-" ]]; then
+  openToken="~"
+else
+  openToken="-"
+fi
+
+# 3x3 board will be represented by a 9 element array
+for square in {1..9}; do
+  squares+=("$openToken")
+done
 
 # checkBoard token array
 # example: checkBoard "X" "${squares[@]}"
@@ -67,6 +82,7 @@ getChoice() {
 printBoard() {
     local squares
     squares=("$@")
+    printf "\n"
     for ((i = 0; i < 9; ++i)); do
         printf "%c" "${squares[$i]}"
         if ((i == 2)) || ((i == 5)) || ((i == 8)); then
@@ -83,7 +99,7 @@ getCompChoice() {
     local i choice openSquare squaresCopy
     squaresCopy=("$@")
     for ((i = 0; i < 9; i++)); do
-        if [[ ${squaresCopy[$i]} == "-" ]]; then
+        if [[ ${squaresCopy[$i]} == "$openToken" ]]; then
             squaresCopy[$i]="$playerToken"
             if checkBoard "$playerToken" "${squaresCopy[@]}"; then
                 echo "$i"
@@ -94,7 +110,7 @@ getCompChoice() {
                 echo "$i"
                 return
             fi
-            squaresCopy[$i]="-" # put it back the way it was
+            squaresCopy[$i]="$openToken" # put it back the way it was
             openSquare=$i # last open square we find will be the default move
         fi
     done
@@ -106,7 +122,7 @@ choice=9 # initialize to invalid choice
 # main loop, use ctrl + c to exit early
 while true; do
     printBoard "${squares[@]}"
-    until [[ ${squares[$choice]} == "-" ]]; do
+    until [[ ${squares[$choice]} == "$openToken" ]]; do
         choice=$(getChoice)
     done
     squares[$choice]="$playerToken"
@@ -119,7 +135,10 @@ while true; do
     if ((moveCount == 5)); then
         printBoard "${squares[@]}"
         echo "It's a tie! Let's play again."
-        squares=(- - - - - - - - -)
+        unset squares
+        for square in {1..9}; do
+          squares+=("$openToken")
+        done
         choice=9
         continue
     fi
