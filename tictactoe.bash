@@ -4,6 +4,9 @@
 # 3x3 board will be represented by a 9 element array
 squares=(- - - - - - - - -)
 
+playerToken="X"
+compToken="O"
+
 # checkBoard token array
 # example: checkBoard "X" "${squares[@]}"
 # - use in an `if` statement
@@ -81,13 +84,13 @@ getCompChoice() {
     squaresCopy=("$@")
     for ((i = 0; i < 9; i++)); do
         if [[ ${squaresCopy[$i]} == "-" ]]; then
-            squaresCopy[$i]="X"
-            if checkBoard "X" "${squaresCopy[@]}"; then
+            squaresCopy[$i]="$playerToken"
+            if checkBoard "$playerToken" "${squaresCopy[@]}"; then
                 echo "$i"
                 return
             fi
-            squaresCopy[$i]="O"
-            if checkBoard "O" "${squaresCopy[@]}"; then
+            squaresCopy[$i]="$compToken"
+            if checkBoard "$compToken" "${squaresCopy[@]}"; then
                 echo "$i"
                 return
             fi
@@ -106,8 +109,8 @@ while true; do
     until [[ ${squares[$choice]} == "-" ]]; do
         choice=$(getChoice)
     done
-    squares[$choice]="X"
-    if checkBoard "X" "${squares[@]}"; then
+    squares[$choice]="$playerToken"
+    if checkBoard "$playerToken" "${squares[@]}"; then
         printBoard "${squares[@]}"
         echo "You win"
         exit 0
@@ -121,8 +124,8 @@ while true; do
         continue
     fi
     choice=$(getCompChoice "${squares[@]}")
-    squares[$choice]="O"
-    if checkBoard "O" "${squares[@]}"; then
+    squares[$choice]="$compToken"
+    if checkBoard "$compToken" "${squares[@]}"; then
         printBoard "${squares[@]}"
         echo "You lose"
         exit 0
